@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng Ký — Hội Sinh Viên BCTech</title>
+<link rel="stylesheet" href="styles/dinhdang.css" style="text/css">
+<script src="scripts/shared.js" ></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>	
+<style>
+body {
+  background: linear-gradient(130deg, var(--navy) 0%, var(--navy-mid) 50%, #1b3670 100%);
+  min-height: 100vh;
+}
+.auth-page {
+  min-height: calc(100vh - 130px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.auth-page::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+/* ── STEPS INDICATOR ─────────────────────────────── */
+.steps-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  gap: 0;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+.step-num {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--gray-lt);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--gray);
+  transition: all var(--transition);
+  border: 2px solid transparent;
+}
+.step-item.active .step-num { background: var(--red); color: #fff; border-color: rgba(204,26,26,.3); box-shadow: 0 0 0 4px rgba(204,26,26,.15); }
+.step-item.done .step-num { background: #27ae60; color: #fff; border-color: rgba(39,174,96,.3); }
+.step-item.done .step-num::before { content: '✓'; }
+.step-item.done .step-num .step-n { display: none; }
+.step-label { font-size: 10px; font-weight: 700; letter-spacing: .5px; color: var(--gray); white-space: nowrap; }
+.step-item.active .step-label { color: var(--red); }
+.step-item.done .step-label { color: #27ae60; }
+.step-line {
+  width: 56px; height: 2px;
+  background: var(--gray-lt);
+  margin: 0 4px;
+  margin-bottom: 22px;
+  border-radius: 2px;
+  transition: background var(--transition);
+}
+.step-line.done { background: #27ae60; }
+
+/* ── CARD ────────────────────────────────────────── */
+.reg-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,.38);
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+.reg-card-head {
+  background: linear-gradient(120deg, var(--navy), var(--navy-light));
+  padding: 24px 28px;
+  text-align: center;
+}
+.reg-card-head h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px; font-weight: 700;
+  letter-spacing: 2px; color: #fff;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.reg-card-head p { font-size: 13px; color: rgba(255,255,255,.7); }
+.reg-card-body { padding: 28px; }
+
+/* Steps content */
+.step-content { display: none; }
+.step-content.active { display: block; }
+
+/* Grid 2 col */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Password strength */
+.pwd-strength-bars {
+  display: flex; gap: 5px; margin-top: 8px;
+}
+.psb {
+  flex: 1; height: 4px; border-radius: 3px;
+  background: var(--gray-lt);
+  transition: background var(--transition);
+}
+.pwd-weak   .psb:nth-child(1) { background: #e74c3c; }
+.pwd-medium .psb:nth-child(1),
+.pwd-medium .psb:nth-child(2) { background: #f39c12; }
+.pwd-strong .psb { background: #27ae60; }
+.pwd-label { font-size: 11px; color: var(--gray); margin-top: 5px; }
+
+/* Confirm summary */
+.confirm-row {
+  display: flex; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--gray-lt);
+  font-size: 13px;
+}
+.confirm-row:last-child { border-bottom: none; padding-bottom: 0; }
+.confirm-row .cr-lbl { color: var(--gray); font-weight: 600; }
+.confirm-row .cr-val { color: var(--navy); font-weight: 700; }
+
+/* Terms */
+.terms-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: var(--navy);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.terms-row a { color: var(--red); font-weight: 700; }
+
+/* Nav buttons */
+.btn-row { display: flex; gap: 10px; }
+.btn-row .btn-back { flex: 1; }
+.btn-row .btn-next { flex: 2; }
+
+/* Auth footer link */
+.auth-footer-link {
+  text-align: center; margin-top: 18px;
+  font-size: 13px; color: var(--gray);
+}
+.auth-footer-link a { color: var(--red); font-weight: 700; }
+
+/* Success screen */
+.success-screen { text-align: center; padding: 20px 0; }
+.success-screen .s-icon { font-size: 64px; margin-bottom: 18px; }
+.success-screen h3 { font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 700; color: var(--navy); margin-bottom: 10px; letter-spacing: 1px; }
+.success-screen p { font-size: 14px; color: var(--gray); line-height: 1.75; margin-bottom: 24px; }
+
+/* Error box */
+.err-box {
+  display: none;
+  background: rgba(204,26,26,.08);
+  border: 1px solid rgba(204,26,26,.25);
+  color: var(--red-dark);
+  padding: 11px 14px; border-radius: 6px;
+  font-size: 13px; margin-bottom: 14px;
+}
+
+/* Input icon */
+.iico-wrap { position: relative; }
+.iico-wrap .ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 15px; opacity: .42; pointer-events: none; }
+.iico-wrap input { padding-left: 40px !important; }
+.pwd-wrap { position: relative; }
+.pwd-wrap .tpwd { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 14px; opacity: .42; cursor: pointer; transition: opacity .2s; }
+.pwd-wrap .tpwd:hover { opacity: .9; }
+
+@media(max-width: 500px) { .g2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- VISITOR BAR -->
+<div class="visitor-bar">
+  <div class="visitor-inner">
+    <div class="visitor-item"><span class="online-dot"></span>Đang trực tuyến:&nbsp;<strong id="counterOnline">–</strong></div>
+    <div class="visitor-item">📅 Hôm nay:&nbsp;<strong id="counterToday">–</strong></div>
+    <div class="visitor-item">👥 Tổng lượt:&nbsp;<strong id="counterTotal">–</strong></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-group">
+      <img src="logo-doan.png"   alt="Đoàn TNCS Hồ Chí Minh">
+      <img src="logo-hsv.png"    alt="Hội Sinh Viên Việt Nam">
+      <img src="logo-truong.png" alt="BCTech">
+    </div>
+    <div class="header-title">
+      <span class="header-eyebrow">Hội Sinh Viên</span>
+      <h1>TRƯỜNG CAO ĐẲNG KỸ THUẬT CÔNG NGHỆ<br><em>BÀ RỊA VŨNG TÀU</em></h1>
+      <div class="tech-pulse"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <ul class="nav-links">
+      <li><a href="index.html">Trang chủ</a></li>
+      <li><a href="gioithieu.html">Giới thiệu</a></li>
+      <li><a href="tintuc.html">Tin tức</a></li>
+      <li><a href="hoivadap.html">Hỏi và đáp</a></li>
+      <li><a href="hotrovieclam.html">Hỗ trợ việc làm</a></li>
+    </ul>
+    <div class="nav-auth">
+      <a href="dangnhap.html" class="btn-login">Đăng nhập</a>
+      <a href="dangky.html" class="btn-reg" style="background:#f0f0f0; color:var(--red-dark);">Đăng ký</a>
+    </div>
+  </div>
+</nav>
+
+<div class="auth-page">
+  <div class="reg-card">
+    <div class="reg-card-head">
+      <h3>📝 Đăng Ký Tài Khoản</h3>
+      <p>Tạo tài khoản để sử dụng đầy đủ dịch vụ Hội Sinh Viên BCTech</p>
+    </div>
+    <div class="reg-card-body">
+
+      <!-- STEPS INDICATOR -->
+      <div class="steps-wrap">
+        <div class="step-item active" id="si1">
+          <div class="step-num"><span class="step-n">1</span></div>
+          <div class="step-label">THÔNG TIN</div>
+        </div>
+        <div class="step-line" id="sl1"></div>
+        <div class="step-item" id="si2">
+          <div class="step-num"><span class="step-n">2</span></div>
+          <div class="step-label">TÀI KHOẢN</div>
+        </div>
+        <div class="step-line" id="sl2"></div>
+        <div class="step-item" id="si3">
+          <div class="step-num"><span class="step-n">3</span></div>
+          <div class="step-label">XÁC NHẬN</div>
+        </div>
+      </div>
+
+      <div class="err-box" id="regErr"></div>
+
+      <!-- STEP 1: Thông tin cá nhân -->
+      <div class="step-content active" id="sc1">
+        <div class="g2">
+          <div class="form-group">
+            <label>Họ và tên đệm</label>
+            <input type="text" id="s1Last" placeholder="Nguyễn Văn">
+          </div>
+          <div class="form-group">
+            <label>Tên</label>
+            <input type="text" id="s1First" placeholder="An">
+          </div>
+        </div>
+        <div class="g2">
+          <div class="form-group">
+            <label>Mã số sinh viên (MSSV)</label>
+            <div class="iico-wrap">
+              <span class="ico">🎓</span>
+              <input type="text" id="s1MSSV" placeholder="BCT2x.xxxxx">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Ngày sinh</label>
+            <input type="date" id="s1DOB">
+          </div>
+        </div>
+        <div class="g2">
+          <div class="form-group">
+            <label>Ngành học</label>
+            <select id="s1Major">
+              <option value="">-- Chọn ngành --</option>
+              <option>Công nghệ Thông tin</option>
+              <option>Điện – Điện tử</option>
+              <option>Cơ khí</option>
+              <option>Hóa học</option>
+              <option>Kế toán</option>
+              <option>Khác</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Lớp</label>
+            <input type="text" id="s1Class" placeholder="VD: CNTT22A">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Số điện thoại</label>
+          <div class="iico-wrap">
+            <span class="ico">📞</span>
+            <input type="tel" id="s1Phone" placeholder="0xxx xxx xxx">
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%;" onclick="toStep(2)">Tiếp theo →</button>
+      </div>
+
+      <!-- STEP 2: Tài khoản -->
+      <div class="step-content" id="sc2">
+        <div class="form-group">
+          <label>Email</label>
+          <div class="iico-wrap">
+            <span class="ico">📧</span>
+            <input type="email" id="s2Email" placeholder="example@email.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <div class="iico-wrap pwd-wrap">
+            <span class="ico">🔒</span>
+            <input type="password" id="s2Pwd" placeholder="Tối thiểu 8 ký tự" oninput="checkStrength(this.value)">
+            <button class="tpwd" type="button" onclick="tPwd('s2Pwd',this)">👁</button>
+          </div>
+          <div class="pwd-strength-bars" id="psbars">
+            <div class="psb"></div><div class="psb"></div><div class="psb"></div>
+          </div>
+          <div class="pwd-label" id="pwdLbl">Nhập mật khẩu để kiểm tra độ mạnh</div>
+        </div>
+        <div class="form-group">
+          <label>Xác nhận mật khẩu</label>
+          <div class="iico-wrap pwd-wrap">
+            <span class="ico">🔒</span>
+            <input type="password" id="s2Confirm" placeholder="Nhập lại mật khẩu">
+            <button class="tpwd" type="button" onclick="tPwd('s2Confirm',this)">👁</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Câu hỏi bảo mật</label>
+          <select id="s2SecQ">
+            <option>-- Chọn câu hỏi --</option>
+            <option>Tên trường tiểu học của bạn?</option>
+            <option>Tên thú cưng đầu tiên của bạn?</option>
+            <option>Tên thành phố bạn sinh ra?</option>
+            <option>Nghề nghiệp của bố/mẹ bạn?</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Câu trả lời bảo mật</label>
+          <input type="text" id="s2SecA" placeholder="Nhập câu trả lời">
+        </div>
+        <div class="btn-row">
+          <button class="btn-outline btn-back" onclick="toStep(1)">← Quay lại</button>
+          <button class="btn-primary btn-next" onclick="toStep(3)">Tiếp theo →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Xác nhận -->
+      <div class="step-content" id="sc3">
+        <div style="background:var(--off); border-radius:8px; padding:18px; margin-bottom:20px; border:1px solid var(--gray-lt);">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; color:var(--navy); margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid var(--red);">📋 KIỂM TRA THÔNG TIN</div>
+          <div class="confirm-row"><span class="cr-lbl">Họ tên</span><span class="cr-val" id="cf_name">—</span></div>
+          <div class="confirm-row"><span class="cr-lbl">MSSV</span><span class="cr-val" id="cf_mssv">—</span></div>
+          <div class="confirm-row"><span class="cr-lbl">Ngày sinh</span><span class="cr-val" id="cf_dob">—</span></div>
+          <div class="confirm-row"><span class="cr-lbl">Ngành</span><span class="cr-val" id="cf_major">—</span></div>
+          <div class="confirm-row"><span class="cr-lbl">Lớp</span><span class="cr-val" id="cf_class">—</span></div>
+          <div class="confirm-row"><span class="cr-lbl">Điện thoại</span><span class="cr-val" id="cf_phone">—</span></div>
+          <div class="confirm-row"><span class="cr-lbl">Email</span><span class="cr-val" id="cf_email">—</span></div>
+        </div>
+
+        <div class="terms-row">
+          <input type="checkbox" id="termsCheck" style="margin-top:2px; flex-shrink:0;">
+          <label for="termsCheck">
+            Tôi đã đọc và đồng ý với <a href="#">Điều khoản sử dụng</a> và
+            <a href="#">Chính sách bảo mật</a> của Hội Sinh Viên BCTech.
+          </label>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-outline btn-back" onclick="toStep(2)">← Quay lại</button>
+          <button class="btn-primary btn-next" onclick="doRegister()">✅ Hoàn tất đăng ký</button>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="step-content" id="sc4">
+        <div class="success-screen">
+          <div class="s-icon">🎉</div>
+          <h3>Đăng ký thành công!</h3>
+          <p>Tài khoản của bạn đã được tạo thành công.<br>
+          Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập.</p>
+          <a href="dangnhap.html" class="btn-primary" style="display:inline-block; padding:13px 32px; font-size:15px;">
+            Đăng nhập ngay →
+          </a>
+          <div style="margin-top:16px;">
+            <a href="index.html" style="font-size:13px; color:var(--gray);">Quay về trang chủ</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-footer-link" id="loginLink">
+        Đã có tài khoản? <a href="dangnhap.html">Đăng nhập →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER compact -->
+<footer style="background:rgba(0,0,0,.3); padding:16px 0; text-align:center;">
+  <div style="font-size:12px; color:rgba(255,255,255,.35);">
+    © 2025 Hội Sinh Viên BCTech &nbsp;·&nbsp;
+    <a href="index.html" style="color:rgba(255,255,255,.45);">Trang chủ</a> &nbsp;·&nbsp;
+    <a href="dangnhap.html" style="color:rgba(255,255,255,.45);">Đăng nhập</a>
+  </div>
+</footer>
+
+<button id="scrollTop" title="Lên đầu trang">↑</button>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="shared.js"></script>
+<script>
+var curStep = 1;
+
+function showErr(msg) {
+  var el = document.getElementById('regErr');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function clearErr() { document.getElementById('regErr').style.display = 'none'; }
+
+function toStep(n) {
+  clearErr();
+
+  // Validate current before going forward
+  if (n > curStep) {
+    if (curStep === 1) {
+      if (!document.getElementById('s1Last').value.trim() ||
+          !document.getElementById('s1First').value.trim()) {
+        return showErr('Vui lòng nhập đầy đủ họ và tên.');
+      }
+      if (!document.getElementById('s1MSSV').value.trim()) {
+        return showErr('Vui lòng nhập mã số sinh viên.');
+      }
+      if (!document.getElementById('s1Major').value) {
+        return showErr('Vui lòng chọn ngành học.');
+      }
+    }
+    if (curStep === 2) {
+      var email = document.getElementById('s2Email').value.trim();
+      var pwd   = document.getElementById('s2Pwd').value;
+      var conf  = document.getElementById('s2Confirm').value;
+      if (!email || !email.includes('@')) return showErr('Vui lòng nhập địa chỉ email hợp lệ.');
+      if (pwd.length < 8) return showErr('Mật khẩu phải có ít nhất 8 ký tự.');
+      if (pwd !== conf) return showErr('Mật khẩu xác nhận không khớp. Vui lòng nhập lại.');
+    }
+    // If going to step 3, populate confirm
+    if (n === 3) populateConfirm();
+  }
+
+  // Update step indicator
+  for (var i = 1; i <= 3; i++) {
+    var si = document.getElementById('si' + i);
+    si.classList.remove('active', 'done');
+    if (i < n) si.classList.add('done');
+    if (i === n) si.classList.add('active');
+
+    // Step lines
+    if (i < 3) {
+      var sl = document.getElementById('sl' + i);
+      sl.classList.toggle('done', i < n);
+    }
+  }
+
+  // Show/hide sections
+  for (var s = 1; s <= 3; s++) {
+    document.getElementById('sc' + s).classList.toggle('active', s === n);
+  }
+
+  curStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function populateConfirm() {
+  var last  = document.getElementById('s1Last').value.trim();
+  var first = document.getElementById('s1First').value.trim();
+  var dob   = document.getElementById('s1DOB').value;
+  document.getElementById('cf_name').textContent  = last + ' ' + first;
+  document.getElementById('cf_mssv').textContent  = document.getElementById('s1MSSV').value.trim() || '—';
+  document.getElementById('cf_dob').textContent   = dob ? new Date(dob).toLocaleDateString('vi-VN') : '—';
+  document.getElementById('cf_major').textContent = document.getElementById('s1Major').value || '—';
+  document.getElementById('cf_class').textContent = document.getElementById('s1Class').value.trim() || '—';
+  document.getElementById('cf_phone').textContent = document.getElementById('s1Phone').value.trim() || '—';
+  document.getElementById('cf_email').textContent = document.getElementById('s2Email').value.trim() || '—';
+}
+
+function checkStrength(pw) {
+  var bars  = document.getElementById('psbars');
+  var label = document.getElementById('pwdLbl');
+  bars.className = 'pwd-strength-bars';
+  if (!pw) { label.textContent = 'Nhập mật khẩu để kiểm tra độ mạnh'; return; }
+  var score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+  var cls = ['','pwd-weak','pwd-medium','pwd-strong'][score];
+  var lbl = ['','⚠️ Yếu — Thêm chữ hoa & số','🔸 Trung bình — Thêm ký tự đặc biệt','✅ Mạnh — Mật khẩu tốt!'][score];
+  bars.className = 'pwd-strength-bars ' + cls;
+  label.textContent = lbl;
+}
+
+function tPwd(id, btn) {
+  var inp = document.getElementById(id);
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+function doRegister() {
+  clearErr();
+  if (!document.getElementById('termsCheck').checked) {
+    return showErr('Bạn cần đồng ý với Điều khoản sử dụng để hoàn tất đăng ký.');
+  }
+  // Hide all steps and login link, show success
+  for (var i = 1; i <= 3; i++) document.getElementById('sc' + i).classList.remove('active');
+  for (var i = 1; i <= 3; i++) {
+    document.getElementById('si' + i).classList.remove('active');
+    document.getElementById('si' + i).classList.add('done');
+    if (i < 3) document.getElementById('sl' + i).classList.add('done');
+  }
+  document.getElementById('sc4').classList.add('active');
+  document.getElementById('loginLink').style.display = 'none';
+  document.querySelector('.steps-wrap').style.display = 'none';
+}
+</script>
+</body>
+
+</html>
