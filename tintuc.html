@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tin Tức — Hội Sinh Viên BCTech</title>
+<link rel="stylesheet" href="styles/dinhdang.css" style="text/css">
+<script src="scripts/shared.js" ></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>	
+<style>
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.fbtn{
+  padding:8px 18px;border-radius:20px;border:1.5px solid var(--gray-lt);
+  background:#fff;font-family:inherit;font-size:13px;font-weight:700;
+  color:var(--gray);cursor:pointer;transition:all var(--transition);
+}
+.fbtn:hover,.fbtn.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.fbtn.on-red{background:var(--red);border-color:var(--red);color:#fff}
+
+.art-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.art-card{
+  background:#fff;border:1px solid var(--gray-lt);border-radius:var(--radius);
+  overflow:hidden;display:flex;flex-direction:column;transition:all var(--transition);
+}
+.art-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.art-card.feat{
+  grid-column:span 2;flex-direction:row;min-height:200px;
+  border-left:3px solid var(--red);
+}
+.art-img{
+  background:linear-gradient(135deg,var(--navy-light),var(--navy));
+  display:flex;align-items:center;justify-content:center;font-size:40px;
+  min-height:150px;flex-shrink:0;
+}
+.art-card.feat .art-img{width:260px;min-height:auto}
+.art-body{padding:20px;display:flex;flex-direction:column;flex:1}
+.art-body h3{font-size:15px;font-weight:700;color:var(--navy);line-height:1.5;flex:1}
+.art-card.feat .art-body h3{font-size:18px}
+.art-body p{font-size:13px;color:var(--gray);line-height:1.7;margin:8px 0;flex:1}
+.art-meta{display:flex;gap:14px;font-size:11px;color:var(--gray);margin-top:14px;padding-top:12px;border-top:1px solid var(--gray-lt)}
+
+.sidebar-widget{background:#fff;border:1px solid var(--gray-lt);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.sw-head{background:var(--navy);padding:13px 18px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase}
+.sw-body{padding:14px 18px}
+.sw-item{padding:11px 0;border-bottom:1px solid var(--gray-lt);cursor:pointer}
+.sw-item:last-child{border-bottom:none;padding-bottom:0}
+.sw-item h4{font-size:13px;font-weight:600;color:var(--navy);line-height:1.4;margin-bottom:4px;transition:color var(--transition)}
+.sw-item:hover h4{color:var(--red)}
+.sw-item span{font-size:11px;color:var(--gray)}
+.cat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-lt);font-size:13px;color:var(--navy);cursor:pointer;transition:color var(--transition)}
+.cat-row:last-child{border-bottom:none;padding-bottom:0}
+.cat-row:hover{color:var(--red)}
+.cat-count{background:var(--off);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;color:var(--gray)}
+
+.pagination{display:flex;gap:6px;justify-content:center;padding:32px 0 0}
+.pagination a{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:5px;font-size:14px;font-weight:700;color:var(--navy);border:1.5px solid var(--gray-lt);transition:all var(--transition)}
+.pagination a:hover,.pagination a.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+@media(max-width:700px){
+  .art-grid{grid-template-columns:1fr}
+  .art-card.feat{flex-direction:column}
+  .art-card.feat .art-img{width:100%;min-height:130px}
+}
+</style>
+</head>
+<body>
+
+<!-- VISITOR BAR -->
+<div class="visitor-bar">
+  <div class="visitor-inner">
+    <div class="visitor-item"><span class="online-dot"></span>Đang trực tuyến:&nbsp;<strong id="counterOnline">–</strong></div>
+    <div class="visitor-item">📅 Hôm nay:&nbsp;<strong id="counterToday">–</strong></div>
+    <div class="visitor-item">👥 Tổng lượt:&nbsp;<strong id="counterTotal">–</strong></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-group">
+      <img src="logo-doan.png"   alt="Đoàn TNCS Hồ Chí Minh">
+      <img src="logo-hsv.png"    alt="Hội Sinh Viên Việt Nam">
+      <img src="logo-truong.png" alt="BCTech">
+    </div>
+    <div class="header-title">
+      <span class="header-eyebrow">Hội Sinh Viên</span>
+      <h1>TRƯỜNG CAO ĐẲNG KỸ THUẬT CÔNG NGHỆ<br><em>BÀ RỊA VŨNG TÀU</em></h1>
+      <div class="tech-pulse"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <ul class="nav-links">
+      <li><a href="index.html">Trang chủ</a></li>
+      <li><a href="gioithieu.html">Giới thiệu</a></li>
+      <li><a href="tintuc.html" class="active">Tin tức</a></li>
+      <li><a href="hoivadap.html">Hỏi và đáp</a></li>
+      <li><a href="hotrovieclam.html">Hỗ trợ việc làm</a></li>
+    </ul>
+    <div class="nav-auth">
+      <a href="dangnhap.html" class="btn-login">Đăng nhập</a>
+      <a href="dangky.html"   class="btn-reg">Đăng ký</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-wrap">
+    <div class="breadcrumb"><a href="index.html">Trang chủ</a><span>›</span>Tin tức</div>
+    <h1>📰 Tin Tức và Sự Kiện</h1>
+    <p>Cập nhật thông tin mới nhất từ Hội Sinh Viên Trường Cao Đẳng Kỹ Thuật Công Nghệ Bà Rịa Vũng Tàu</p>
+  </div>
+</div>
+
+<section class="section bg-off">
+  <div class="container">
+    <div class="grid-main-sidebar">
+      <div>
+        <div class="filter-bar">
+          <button class="fbtn on-red" onclick="setFilter(this)">Tất cả</button>
+          <button class="fbtn" onclick="setFilter(this)">Hoạt động</button>
+          <button class="fbtn" onclick="setFilter(this)">Học bổng</button>
+          <button class="fbtn" onclick="setFilter(this)">Sự kiện</button>
+          <button class="fbtn" onclick="setFilter(this)">Thông báo</button>
+          <button class="fbtn" onclick="setFilter(this)">Tuyển dụng</button>
+        </div>
+
+        <div class="art-grid">
+          <!-- Featured -->
+          <div class="art-card feat">
+            <div class="art-img">🌱</div>
+            <div class="art-body">
+              <span class="news-badge">Hoạt động</span>
+              <h3>Lễ ra quân Chiến dịch Mùa hè Xanh 2025 — Thanh niên tình nguyện vì cộng đồng</h3>
+              <p>Hơn 300 sinh viên BCTech tham gia chiến dịch tình nguyện tại các xã vùng sâu tỉnh Bà Rịa Vũng Tàu trong mùa hè 2025. Các bạn hỗ trợ xây nhà tình thương, dạy học và làm sạch môi trường.</p>
+              <div class="art-meta"><span>📅 02/06/2025</span><span>👁 1.234 lượt</span><span>⏱ 5 phút đọc</span></div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-img" style="background:linear-gradient(135deg,#c0392b,#8b0000)">🏆</div>
+            <div class="art-body">
+              <span class="news-badge">Học bổng</span>
+              <h3>Thông báo xét học bổng khuyến học HK II năm học 2024–2025</h3>
+              <p>Hội đồng xét học bổng mở hồ sơ từ 10/06/2025. Sinh viên đủ điều kiện nộp trước 30/06/2025.</p>
+              <div class="art-meta"><span>📅 30/05/2025</span><span>👁 892</span></div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-img" style="background:linear-gradient(135deg,#1a6b9a,#0a3a5c)">💼</div>
+            <div class="art-body">
+              <span class="news-badge">Sự kiện</span>
+              <h3>Ngày hội Việc làm 2025 — Kết nối doanh nghiệp và sinh viên BCTech</h3>
+              <p>Hơn 30 doanh nghiệp hàng đầu tham gia ngày hội việc làm thường niên, với hàng trăm vị trí tuyển dụng.</p>
+              <div class="art-meta"><span>📅 28/05/2025</span><span>👁 1.560</span></div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-img" style="background:linear-gradient(135deg,#1e8449,#0b5a2f)">📊</div>
+            <div class="art-body">
+              <span class="news-badge">Thông báo</span>
+              <h3>Kết quả đánh giá điểm rèn luyện học kỳ I năm học 2024–2025</h3>
+              <p>Ban chấp hành Hội Sinh Viên thông báo kết quả điểm rèn luyện cho toàn thể sinh viên nhà trường.</p>
+              <div class="art-meta"><span>📅 25/05/2025</span><span>👁 2.103</span></div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-img" style="background:linear-gradient(135deg,#7d3c98,#4a235a)">🎓</div>
+            <div class="art-body">
+              <span class="news-badge">Học bổng</span>
+              <h3>Học bổng Doanh nghiệp Công nghệ Quốc gia trị giá 20 triệu đồng</h3>
+              <p>Chương trình dành cho sinh viên ngành CNTT, Điện – Điện tử có thành tích học tập xuất sắc.</p>
+              <div class="art-meta"><span>📅 20/05/2025</span><span>👁 740</span></div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-img" style="background:linear-gradient(135deg,#d4ac0d,#7d6608)">⚙️</div>
+            <div class="art-body">
+              <span class="news-badge">Sự kiện</span>
+              <h3>Cuộc thi Sáng tạo Kỹ thuật BCTech 2025 — Gọi hồ sơ dự thi</h3>
+              <p>Sân chơi kỹ năng nghề và sáng tạo kỹ thuật thường niên. Hạn đăng ký: 15/06/2025.</p>
+              <div class="art-meta"><span>📅 15/05/2025</span><span>👁 619</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pagination">
+          <a class="on">1</a><a href="#">2</a><a href="#">3</a><a href="#">4</a><a href="#">→</a>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div>
+        <div class="sidebar-widget">
+          <div class="sw-head">🔥 Tin nổi bật</div>
+          <div class="sw-body">
+            <div class="sw-item"><h4>Lịch nghỉ hè và khai giảng năm học 2025–2026</h4><span>📅 05/06/2025</span></div>
+            <div class="sw-item"><h4>Thông báo thu học phí học kỳ I năm 2025–2026</h4><span>📅 03/06/2025</span></div>
+            <div class="sw-item"><h4>Danh sách sinh viên được khen thưởng năm 2024–2025</h4><span>📅 01/06/2025</span></div>
+            <div class="sw-item"><h4>Hội thảo "Kỹ năng mềm cho sinh viên kỹ thuật"</h4><span>📅 29/05/2025</span></div>
+          </div>
+        </div>
+        <div class="sidebar-widget">
+          <div class="sw-head">📂 Danh mục</div>
+          <div class="sw-body">
+            <div class="cat-row">📌 Tất cả<span class="cat-count">48</span></div>
+            <div class="cat-row">🏆 Học bổng<span class="cat-count">12</span></div>
+            <div class="cat-row">🌱 Hoạt động<span class="cat-count">15</span></div>
+            <div class="cat-row">📅 Sự kiện<span class="cat-count">9</span></div>
+            <div class="cat-row">📢 Thông báo<span class="cat-count">8</span></div>
+            <div class="cat-row">💼 Tuyển dụng<span class="cat-count">4</span></div>
+          </div>
+        </div>
+        <div class="sidebar-widget">
+          <div class="sw-head">📅 Sự kiện sắp tới</div>
+          <div class="sw-body">
+            <div class="sw-item">
+              <h4>Hội thảo Kỹ năng mềm</h4>
+              <span>📅 20/06/2025 · 08:00</span>
+            </div>
+            <div class="sw-item">
+              <h4>Cuộc thi Sáng tạo Kỹ thuật BCTech 2025</h4>
+              <span>📅 28/06/2025 · 14:00</span>
+            </div>
+            <div class="sw-item">
+              <h4>Lễ tổng kết Mùa hè Xanh 2025</h4>
+              <span>📅 05/07/2025 · 08:30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="footer-logo">BCTech HSV</div><p>Hội Sinh Viên Trường Cao Đẳng Kỹ Thuật Công Nghệ Bà Rịa Vũng Tàu.</p></div>
+    <div><h4>Liên kết nhanh</h4><ul class="footer-links"><li><a href="index.html">Trang chủ</a></li><li><a href="gioithieu.html">Giới thiệu</a></li><li><a href="tintuc.html">Tin tức</a></li><li><a href="hoivadap.html">Hỏi và đáp</a></li><li><a href="hotrovieclam.html">Hỗ trợ việc làm</a></li></ul></div>
+    <div><h4>Dịch vụ</h4><ul class="footer-links"><li><a href="#">Điểm rèn luyện</a></li><li><a href="#">Học bổng</a></li><li><a href="#">Tuyển dụng</a></li><li><a href="dangnhap.html">Đăng nhập</a></li><li><a href="dangky.html">Đăng ký</a></li></ul></div>
+    <div><h4>Liên hệ</h4><ul class="footer-links"><li>📍 Bà Rịa Vũng Tàu, Việt Nam</li><li>📧 hoisinhvien@bctech.edu.vn</li><li>📞 0254 xxx xxxx</li><li>🕐 T2–T6: 8:00–17:00</li></ul></div>
+  </div>
+  <div class="footer-bottom">© 2025 Hội Sinh Viên BCTech. Bảo lưu mọi quyền.</div>
+</footer>
+
+<button id="scrollTop" title="Lên đầu trang">↑</button>
+<button id="chatBtn" title="Chat hỗ trợ">💬<span class="chat-ping"></span></button>
+<div id="chatBox">
+  <div class="chat-head"><div class="chat-head-icon">🤖</div><div class="chat-head-info"><h4>Trợ lý HSV BCTech</h4><p>Thường trả lời ngay lập tức</p></div><span class="online-dot" style="margin-left:auto"></span><button class="chat-close-btn" id="chatCloseBtn">✕</button></div>
+  <div class="chat-body" id="chatBody"><div class="msg bot"><div class="msg-bubble">Xin chào! 👋 Mình là trợ lý tự động của Hội SV BCTech. Bạn cần hỗ trợ gì hôm nay?</div><div class="msg-time">Bây giờ</div></div></div>
+  <div class="chat-quick"><button class="quick-btn">Học phí</button><button class="quick-btn">Học bổng</button><button class="quick-btn">Điểm rèn luyện</button><button class="quick-btn">Việc làm</button><button class="quick-btn">Liên hệ</button></div>
+  <div class="chat-foot"><input class="chat-input" id="chatInput" type="text" placeholder="Nhập câu hỏi của bạn…"><button class="chat-send" id="chatSend">➤</button></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="shared.js"></script>
+<script>
+function setFilter(el) {
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on', 'on-red'));
+  el.classList.add('on-red');
+}
+</script>
+</body>	
+</html>

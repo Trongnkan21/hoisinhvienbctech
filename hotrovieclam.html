@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hỗ Trợ Việc Làm — Hội Sinh Viên BCTech</title>
+<link rel="stylesheet" href="styles/dinhdang.css" style="text/css">
+<script src="scripts/shared.js" ></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>	
+<style>
+/* ── STATS BAR ───────────────────────────────────── */
+.stats-band {
+  background: var(--navy);
+  padding: 32px 0;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.stat-cell {
+  background: rgba(255,255,255,.04);
+  padding: 24px 20px;
+  text-align: center;
+  transition: background var(--transition);
+}
+.stat-cell:hover { background: rgba(255,255,255,.09); }
+.sc-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+.sc-lbl { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 6px; font-weight: 600; letter-spacing: .5px; }
+
+/* ── FILTER ROW ──────────────────────────────────── */
+.job-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.jf-select {
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-lt);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--navy);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+.jf-select:focus { border-color: var(--navy-light); }
+.jf-search {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-lt);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--navy);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.jf-search:focus { border-color: var(--navy-light); }
+
+/* ── JOB CARDS ───────────────────────────────────── */
+.jobs-list { display: flex; flex-direction: column; gap: 14px; }
+.jcard {
+  background: #fff;
+  border: 1px solid var(--gray-lt);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.jcard:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(10,22,40,.2); }
+.jcard.featured { border-left: 3px solid var(--gold); background: linear-gradient(to right, #fffdf5, #fff); }
+.jcard-logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--navy-light), var(--navy));
+}
+.jcard-body { flex: 1; }
+.jcard-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+.jcard-company { font-size: 12px; color: var(--gray); margin-bottom: 10px; }
+.jcard-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.jtag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 10px; background: var(--off); border: 1px solid var(--gray-lt); color: var(--navy); }
+.jtag.red { background: rgba(204,26,26,.07); border-color: rgba(204,26,26,.2); color: var(--red); }
+.jtag.green { background: rgba(39,174,96,.08); border-color: rgba(39,174,96,.25); color: #1a8a4e; }
+.jtag.gold { background: rgba(232,184,75,.1); border-color: rgba(232,184,75,.35); color: #9a7000; }
+.jcard-meta { text-align: right; flex-shrink: 0; }
+.jcard-meta .dl-lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+.jcard-meta .dl-date { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; color: var(--navy); }
+.jcard-meta .dl-date.urgent { color: var(--red); }
+.hot-badge {
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+/* ── COMPANY GRID ────────────────────────────────── */
+.co-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+.co-card {
+  background: #fff;
+  border: 1px solid var(--gray-lt);
+  border-radius: var(--radius);
+  padding: 20px 14px;
+  text-align: center;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.co-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(10,22,40,.2); }
+.co-icon { font-size: 32px; margin-bottom: 10px; }
+.co-name { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+.co-field { font-size: 11px; color: var(--gray); }
+.co-jobs { font-size: 11px; font-weight: 700; color: var(--red); margin-top: 6px; }
+
+/* ── REGISTER SIDEBAR ────────────────────────────── */
+.reg-card { background: #fff; border: 1px solid var(--gray-lt); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; }
+.reg-head { background: var(--red); padding: 18px 20px; }
+.reg-head h3 { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1px; color: #fff; margin-bottom: 4px; }
+.reg-head p { font-size: 12px; color: rgba(255,255,255,.75); }
+.reg-body { padding: 20px; }
+
+/* ── TIPS SECTION ────────────────────────────────── */
+.tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.tip-card {
+  background: #fff;
+  border: 1px solid var(--gray-lt);
+  border-radius: var(--radius);
+  padding: 22px;
+  border-top: 3px solid var(--navy);
+  transition: all var(--transition);
+}
+.tip-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.tip-card.red-top { border-top-color: var(--red); }
+.tip-icon { font-size: 28px; margin-bottom: 12px; }
+.tip-card h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.tip-card p { font-size: 13px; color: var(--gray); line-height: 1.7; }
+
+@media(max-width: 900px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .co-grid { grid-template-columns: 1fr 1fr; }
+  .tip-grid { grid-template-columns: 1fr; }
+}
+@media(max-width: 600px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .jcard { flex-wrap: wrap; }
+  .jcard-meta { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- VISITOR BAR -->
+<div class="visitor-bar">
+  <div class="visitor-inner">
+    <div class="visitor-item"><span class="online-dot"></span>Đang trực tuyến:&nbsp;<strong id="counterOnline">–</strong></div>
+    <div class="visitor-item">📅 Hôm nay:&nbsp;<strong id="counterToday">–</strong></div>
+    <div class="visitor-item">👥 Tổng lượt:&nbsp;<strong id="counterTotal">–</strong></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-group">
+      <img src="logo-doan.png"   alt="Đoàn TNCS Hồ Chí Minh">
+      <img src="logo-hsv.png"    alt="Hội Sinh Viên Việt Nam">
+      <img src="logo-truong.png" alt="BCTech">
+    </div>
+    <div class="header-title">
+      <span class="header-eyebrow">Hội Sinh Viên</span>
+      <h1>TRƯỜNG CAO ĐẲNG KỸ THUẬT CÔNG NGHỆ<br><em>BÀ RỊA VŨNG TÀU</em></h1>
+      <div class="tech-pulse"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <ul class="nav-links">
+      <li><a href="index.html">Trang chủ</a></li>
+      <li><a href="gioithieu.html">Giới thiệu</a></li>
+      <li><a href="tintuc.html">Tin tức</a></li>
+      <li><a href="hoivadap.html">Hỏi và đáp</a></li>
+      <li><a href="hotrovieclam.html" class="active">Hỗ trợ việc làm</a></li>
+    </ul>
+    <div class="nav-auth">
+      <a href="dangnhap.html" class="btn-login">Đăng nhập</a>
+      <a href="dangky.html" class="btn-reg">Đăng ký</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-wrap">
+    <div class="breadcrumb"><a href="index.html">Trang chủ</a><span>›</span>Hỗ trợ việc làm</div>
+    <h1>💼 Hỗ Trợ Việc Làm</h1>
+    <p>Kết nối sinh viên với cơ hội thực tập và tuyển dụng từ 45+ doanh nghiệp đối tác</p>
+  </div>
+</div>
+
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-cell">
+        <div class="sc-num">45+</div>
+        <div class="sc-lbl">DOANH NGHIỆP ĐỐI TÁC</div>
+      </div>
+      <div class="stat-cell">
+        <div class="sc-num">120+</div>
+        <div class="sc-lbl">VỊ TRÍ ĐANG TUYỂN</div>
+      </div>
+      <div class="stat-cell">
+        <div class="sc-num">95%</div>
+        <div class="sc-lbl">CÓ VIỆC LÀM SAU TN</div>
+      </div>
+      <div class="stat-cell">
+        <div class="sc-num">8–15tr</div>
+        <div class="sc-lbl">MỨC LƯƠNG TRUNG BÌNH</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="section bg-off">
+  <div class="container">
+    <div class="grid-main-sidebar">
+
+      <!-- LEFT: JOB LIST -->
+      <div>
+        <!-- Filters -->
+        <div class="job-filters">
+          <input class="jf-search" id="jobSearch" type="text" placeholder="🔍  Tìm kiếm vị trí, công ty…" oninput="filterJobs()">
+          <select class="jf-select" id="jobType" onchange="filterJobs()">
+            <option value="">Tất cả hình thức</option>
+            <option value="toan">Toàn thời gian</option>
+            <option value="thuc">Thực tập</option>
+            <option value="part">Bán thời gian</option>
+          </select>
+          <select class="jf-select" id="jobField" onchange="filterJobs()">
+            <option value="">Tất cả ngành</option>
+            <option value="cntt">Công nghệ Thông tin</option>
+            <option value="dien">Điện – Điện tử</option>
+            <option value="cokhi">Cơ khí</option>
+            <option value="hoa">Hóa học</option>
+          </select>
+        </div>
+
+        <div class="jobs-list" id="jobsList">
+          <!-- JOB 1 - Featured -->
+          <div class="jcard featured" data-type="toan" data-field="cntt">
+            <div class="jcard-logo">💻</div>
+            <div class="jcard-body">
+              <div class="hot-badge">🔥 NỔI BẬT</div>
+              <div class="jcard-title">Lập trình viên Web (Junior)</div>
+              <div class="jcard-company">🏢 Công ty TNHH Giải pháp Công nghệ Vũng Tàu &nbsp;·&nbsp; 📍 Vũng Tàu</div>
+              <div class="jcard-tags">
+                <span class="jtag red">Toàn thời gian</span>
+                <span class="jtag green">8–12 triệu/tháng</span>
+                <span class="jtag">HTML/CSS/JS</span>
+                <span class="jtag">ReactJS</span>
+                <span class="jtag">Kinh nghiệm: 0–1 năm</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date urgent">20/06</div>
+            </div>
+          </div>
+
+          <!-- JOB 2 -->
+          <div class="jcard" data-type="toan" data-field="dien">
+            <div class="jcard-logo" style="background:linear-gradient(135deg,#c0392b,#8b0000)">⚡</div>
+            <div class="jcard-body">
+              <div class="jcard-title">Kỹ thuật viên Điện – Điện tử</div>
+              <div class="jcard-company">🏢 Công ty CP Cơ điện Miền Nam &nbsp;·&nbsp; 📍 Bà Rịa</div>
+              <div class="jcard-tags">
+                <span class="jtag red">Toàn thời gian</span>
+                <span class="jtag green">9–13 triệu/tháng</span>
+                <span class="jtag">PLC</span>
+                <span class="jtag">Điện công nghiệp</span>
+                <span class="jtag">SCADA</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date">30/06</div>
+            </div>
+          </div>
+
+          <!-- JOB 3 - Internship -->
+          <div class="jcard" data-type="thuc" data-field="cokhi">
+            <div class="jcard-logo" style="background:linear-gradient(135deg,#1a8a4e,#0b5a2f)">🔧</div>
+            <div class="jcard-body">
+              <div class="jcard-title">Thực tập sinh Kỹ thuật Cơ khí</div>
+              <div class="jcard-company">🏢 Nhà máy Chế tạo Thiết bị BCTech &nbsp;·&nbsp; 📍 KCN Phú Mỹ</div>
+              <div class="jcard-tags">
+                <span class="jtag gold">Thực tập</span>
+                <span class="jtag green">3–5 triệu/tháng</span>
+                <span class="jtag">AutoCAD</span>
+                <span class="jtag">CNC</span>
+                <span class="jtag">SolidWorks</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date">15/07</div>
+            </div>
+          </div>
+
+          <!-- JOB 4 -->
+          <div class="jcard" data-type="toan" data-field="cntt">
+            <div class="jcard-logo" style="background:linear-gradient(135deg,#1a6b9a,#0a3a5c)">🏦</div>
+            <div class="jcard-body">
+              <div class="jcard-title">Chuyên viên IT Hỗ trợ Kỹ thuật</div>
+              <div class="jcard-company">🏢 BIDV Chi nhánh Vũng Tàu &nbsp;·&nbsp; 📍 Vũng Tàu</div>
+              <div class="jcard-tags">
+                <span class="jtag red">Toàn thời gian</span>
+                <span class="jtag green">10–15 triệu/tháng</span>
+                <span class="jtag">Network</span>
+                <span class="jtag">Helpdesk</span>
+                <span class="jtag">Windows Server</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date urgent">25/06</div>
+            </div>
+          </div>
+
+          <!-- JOB 5 -->
+          <div class="jcard" data-type="toan" data-field="hoa">
+            <div class="jcard-logo" style="background:linear-gradient(135deg,#7d6608,#4a3d00)">🏗️</div>
+            <div class="jcard-body">
+              <div class="jcard-title">Kỹ sư Hóa chất / Vận hành Nhà máy</div>
+              <div class="jcard-company">🏢 PVChem – Tập đoàn Hóa chất Việt Nam &nbsp;·&nbsp; 📍 KCN Phú Mỹ 2</div>
+              <div class="jcard-tags">
+                <span class="jtag red">Toàn thời gian</span>
+                <span class="jtag green">12–18 triệu/tháng</span>
+                <span class="jtag">Hóa công nghiệp</span>
+                <span class="jtag">An toàn hóa chất</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date">10/07</div>
+            </div>
+          </div>
+
+          <!-- JOB 6 - Part time -->
+          <div class="jcard" data-type="part" data-field="cntt">
+            <div class="jcard-logo" style="background:linear-gradient(135deg,#6c3483,#3d1a5c)">📱</div>
+            <div class="jcard-body">
+              <div class="jcard-title">Lập trình viên Mobile (Part-time)</div>
+              <div class="jcard-company">🏢 Startup AppVT &nbsp;·&nbsp; 📍 Vũng Tàu (Remote)</div>
+              <div class="jcard-tags">
+                <span class="jtag">Bán thời gian</span>
+                <span class="jtag green">5–8 triệu/tháng</span>
+                <span class="jtag">Flutter</span>
+                <span class="jtag">React Native</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date">20/07</div>
+            </div>
+          </div>
+
+          <!-- JOB 7 -->
+          <div class="jcard" data-type="thuc" data-field="dien">
+            <div class="jcard-logo" style="background:linear-gradient(135deg,#1a6b9a,#0a3a5c)">⚙️</div>
+            <div class="jcard-body">
+              <div class="jcard-title">Thực tập sinh Tự động hóa</div>
+              <div class="jcard-company">🏢 Posco Vietnam &nbsp;·&nbsp; 📍 KCN Phú Mỹ 1</div>
+              <div class="jcard-tags">
+                <span class="jtag gold">Thực tập</span>
+                <span class="jtag green">4–6 triệu/tháng</span>
+                <span class="jtag">PLC Siemens</span>
+                <span class="jtag">HMI</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date">01/08</div>
+            </div>
+          </div>
+
+          <!-- JOB 8 -->
+          <div class="jcard" data-type="toan" data-field="cntt">
+            <div class="jcard-logo" style="background:linear-gradient(135deg,#d4ac0d,#7d6608)">📡</div>
+            <div class="jcard-body">
+              <div class="jcard-title">Kỹ sư Mạng & Hạ tầng IT</div>
+              <div class="jcard-company">🏢 Viettel Bà Rịa Vũng Tàu &nbsp;·&nbsp; 📍 Bà Rịa</div>
+              <div class="jcard-tags">
+                <span class="jtag red">Toàn thời gian</span>
+                <span class="jtag green">11–16 triệu/tháng</span>
+                <span class="jtag">Cisco</span>
+                <span class="jtag">Linux</span>
+                <span class="jtag">Firewall</span>
+              </div>
+            </div>
+            <div class="jcard-meta">
+              <div class="dl-lbl">Hạn nộp</div>
+              <div class="dl-date">15/07</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="noResult" style="display:none; text-align:center; padding:40px; color:var(--gray);">
+          <div style="font-size:40px; margin-bottom:12px;">🔍</div>
+          <p style="font-size:14px;">Không tìm thấy vị trí phù hợp. Hãy thử từ khóa khác hoặc đặt lại bộ lọc.</p>
+        </div>
+
+        <div class="pagination" style="margin-top: 8px;">
+          <a class="on">1</a><a href="#">2</a><a href="#">3</a><a href="#">→</a>
+        </div>
+
+        <!-- DOANH NGHIỆP ĐỐI TÁC -->
+        <div style="margin-top: 48px;">
+          <div class="section-eyebrow">Đối tác</div>
+          <h2 class="section-title">Doanh Nghiệp Đối Tác</h2>
+          <div class="co-grid">
+            <div class="co-card"><div class="co-icon">⚡</div><div class="co-name">EVN</div><div class="co-field">Điện lực</div><div class="co-jobs">12 vị trí</div></div>
+            <div class="co-card"><div class="co-icon">🏭</div><div class="co-name">PVChem</div><div class="co-field">Hóa chất</div><div class="co-jobs">8 vị trí</div></div>
+            <div class="co-card"><div class="co-icon">💻</div><div class="co-name">FPT Software</div><div class="co-field">Công nghệ</div><div class="co-jobs">15 vị trí</div></div>
+            <div class="co-card"><div class="co-icon">🏦</div><div class="co-name">BIDV</div><div class="co-field">Ngân hàng</div><div class="co-jobs">6 vị trí</div></div>
+            <div class="co-card"><div class="co-icon">🔩</div><div class="co-name">Posco VN</div><div class="co-field">Cơ khí</div><div class="co-jobs">9 vị trí</div></div>
+            <div class="co-card"><div class="co-icon">🌊</div><div class="co-name">PetroVN</div><div class="co-field">Dầu khí</div><div class="co-jobs">5 vị trí</div></div>
+            <div class="co-card"><div class="co-icon">📡</div><div class="co-name">Viettel</div><div class="co-field">Viễn thông</div><div class="co-jobs">7 vị trí</div></div>
+            <div class="co-card"><div class="co-icon">🏗️</div><div class="co-name">Vinaconex</div><div class="co-field">Xây dựng</div><div class="co-jobs">4 vị trí</div></div>
+          </div>
+        </div>
+
+        <!-- TIPS -->
+        <div style="margin-top: 48px;">
+          <div class="section-eyebrow">Mẹo hay</div>
+          <h2 class="section-title">Chuẩn Bị Hành Trang Nghề Nghiệp</h2>
+          <div class="tip-grid">
+            <div class="tip-card">
+              <div class="tip-icon">📄</div>
+              <h3>Viết CV chuyên nghiệp</h3>
+              <p>CV ngắn gọn 1 trang, nhấn mạnh kỹ năng thực tế và dự án đã thực hiện. Dùng định dạng PDF khi nộp.</p>
+            </div>
+            <div class="tip-card red-top">
+              <div class="tip-icon">🎤</div>
+              <h3>Phỏng vấn tự tin</h3>
+              <p>Tìm hiểu kỹ doanh nghiệp trước khi phỏng vấn. Chuẩn bị câu hỏi cho nhà tuyển dụng để thể hiện sự quan tâm.</p>
+            </div>
+            <div class="tip-card red-top">
+              <div class="tip-icon">🤝</div>
+              <h3>Xây dựng mạng lưới</h3>
+              <p>Tham gia Ngày hội Việc làm, hội thảo doanh nghiệp để kết nối trực tiếp với nhà tuyển dụng.</p>
+            </div>
+            <div class="tip-card">
+              <div class="tip-icon">📈</div>
+              <h3>Nâng cao kỹ năng liên tục</h3>
+              <p>Hoàn thành chứng chỉ trực tuyến (Coursera, Google, Microsoft) để tăng giá trị bản thân.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SIDEBAR -->
+      <div>
+        <!-- Register card -->
+        <div class="reg-card">
+          <div class="reg-head">
+            <h3>📋 Đăng ký tìm việc</h3>
+            <p>Để lại thông tin — chúng tôi kết nối bạn với doanh nghiệp phù hợp</p>
+          </div>
+          <div class="reg-body">
+            <div id="regSuccess" style="display:none; background:rgba(39,174,96,.1); border:1px solid rgba(39,174,96,.3); color:#1a6b3c; padding:12px 14px; border-radius:6px; font-size:13px; margin-bottom:14px;">
+              ✅ Đăng ký thành công! Chúng tôi sẽ liên hệ bạn sớm nhất.
+            </div>
+            <div class="form-group">
+              <label>Họ và tên</label>
+              <input type="text" id="regName" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="form-group">
+              <label>MSSV</label>
+              <input type="text" id="regMSSV" placeholder="BCT2x.xxxxx">
+            </div>
+            <div class="form-group">
+              <label>Số điện thoại</label>
+              <input type="tel" id="regPhone" placeholder="0xxx xxx xxx">
+            </div>
+            <div class="form-group">
+              <label>Chuyên ngành</label>
+              <select id="regMajor">
+                <option>Công nghệ Thông tin</option>
+                <option>Điện – Điện tử</option>
+                <option>Cơ khí</option>
+                <option>Hóa học</option>
+                <option>Kế toán</option>
+                <option>Khác</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Hình thức mong muốn</label>
+              <select id="regType">
+                <option>Thực tập</option>
+                <option>Bán thời gian</option>
+                <option>Toàn thời gian</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Kỹ năng nổi bật</label>
+              <textarea id="regSkill" placeholder="VD: Python, AutoCAD, PLC Siemens…" style="min-height:80px;"></textarea>
+            </div>
+            <button class="btn-primary" style="width:100%;" onclick="submitReg()">Đăng ký ngay →</button>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div style="background:var(--navy); border-radius:var(--radius); padding:20px; margin-bottom:18px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; color:#fff; margin-bottom:12px;">📞 TƯ VẤN TRỰC TIẾP</div>
+          <p style="font-size:13px; color:rgba(255,255,255,.7); margin-bottom:12px;">Liên hệ Ban Hỗ trợ Việc làm để được tư vấn cá nhân</p>
+          <p style="font-size:13px; font-weight:600; color:#fff;">📧 vieclamhsv@bctech.edu.vn</p>
+          <p style="font-size:13px; font-weight:600; color:#fff; margin-top:7px;">📞 0254 xxx xxxx (ext. 302)</p>
+          <p style="font-size:11px; color:rgba(255,255,255,.4); margin-top:10px;">T2–T6: 8:00–17:00 | T7: 8:00–11:30</p>
+        </div>
+
+        <!-- Quick stats sidebar -->
+        <div style="background:#fff; border:1px solid var(--gray-lt); border-radius:var(--radius); padding:20px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; color:var(--navy); margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid var(--red);">📊 THỐNG KÊ VỊ TRÍ</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--gray-lt); font-size:13px; color:var(--navy);">
+            <span>💻 Công nghệ Thông tin</span><strong style="color:var(--red);">42</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--gray-lt); font-size:13px; color:var(--navy);">
+            <span>⚡ Điện – Điện tử</span><strong style="color:var(--red);">31</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--gray-lt); font-size:13px; color:var(--navy);">
+            <span>🔧 Cơ khí</span><strong style="color:var(--red);">28</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--gray-lt); font-size:13px; color:var(--navy);">
+            <span>🧪 Hóa học</span><strong style="color:var(--red);">14</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; font-size:13px; color:var(--navy);">
+            <span>💼 Khác</span><strong style="color:var(--red);">8</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="footer-logo">BCTech HSV</div><p>Hội Sinh Viên Trường Cao Đẳng Kỹ Thuật Công Nghệ Bà Rịa Vũng Tàu.<br>Kết nối – Chia sẻ – Phát triển.</p></div>
+    <div><h4>Liên kết nhanh</h4><ul class="footer-links"><li><a href="index.html">Trang chủ</a></li><li><a href="gioithieu.html">Giới thiệu</a></li><li><a href="tintuc.html">Tin tức</a></li><li><a href="hoivadap.html">Hỏi và đáp</a></li><li><a href="hotrovieclam.html">Hỗ trợ việc làm</a></li></ul></div>
+    <div><h4>Dịch vụ</h4><ul class="footer-links"><li><a href="#">Điểm rèn luyện</a></li><li><a href="#">Học bổng</a></li><li><a href="#">Tuyển dụng</a></li><li><a href="dangnhap.html">Đăng nhập</a></li><li><a href="dangky.html">Đăng ký</a></li></ul></div>
+    <div><h4>Liên hệ</h4><ul class="footer-links"><li>📍 Bà Rịa Vũng Tàu, Việt Nam</li><li>📧 hoisinhvien@bctech.edu.vn</li><li>📞 0254 xxx xxxx</li><li>🕐 T2–T6: 8:00–17:00</li></ul></div>
+  </div>
+  <div class="footer-bottom">© 2025 Hội Sinh Viên BCTech. Bảo lưu mọi quyền.</div>
+</footer>
+
+<button id="scrollTop" title="Lên đầu trang">↑</button>
+<button id="chatBtn" title="Chat hỗ trợ">💬<span class="chat-ping"></span></button>
+<div id="chatBox">
+  <div class="chat-head"><div class="chat-head-icon">🤖</div><div class="chat-head-info"><h4>Trợ lý HSV BCTech</h4><p>Thường trả lời ngay lập tức</p></div><span class="online-dot" style="margin-left:auto"></span><button class="chat-close-btn" id="chatCloseBtn">✕</button></div>
+  <div class="chat-body" id="chatBody"><div class="msg bot"><div class="msg-bubble">Xin chào! 👋 Mình là trợ lý tự động của Hội SV BCTech. Bạn cần hỗ trợ gì hôm nay?</div><div class="msg-time">Bây giờ</div></div></div>
+  <div class="chat-quick"><button class="quick-btn">Học phí</button><button class="quick-btn">Học bổng</button><button class="quick-btn">Điểm rèn luyện</button><button class="quick-btn">Việc làm</button><button class="quick-btn">Liên hệ</button></div>
+  <div class="chat-foot"><input class="chat-input" id="chatInput" type="text" placeholder="Nhập câu hỏi của bạn…"><button class="chat-send" id="chatSend">➤</button></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="shared.js"></script>
+<script>
+function filterJobs() {
+  var kw    = document.getElementById('jobSearch').value.toLowerCase().trim();
+  var type  = document.getElementById('jobType').value;
+  var field = document.getElementById('jobField').value;
+  var cards = document.querySelectorAll('#jobsList .jcard');
+  var shown = 0;
+  cards.forEach(function(c) {
+    var text  = c.textContent.toLowerCase();
+    var ctype = c.dataset.type;
+    var cfield= c.dataset.field;
+    var ok = (!kw || text.includes(kw))
+          && (!type  || ctype  === type)
+          && (!field || cfield === field);
+    c.style.display = ok ? '' : 'none';
+    if (ok) shown++;
+  });
+  document.getElementById('noResult').style.display = shown === 0 ? 'block' : 'none';
+}
+
+function submitReg() {
+  var name = document.getElementById('regName').value.trim();
+  var phone = document.getElementById('regPhone').value.trim();
+  if (!name || !phone) { alert('Vui lòng nhập họ tên và số điện thoại!'); return; }
+  document.getElementById('regSuccess').style.display = 'block';
+  document.getElementById('regName').value = '';
+  document.getElementById('regMSSV').value = '';
+  document.getElementById('regPhone').value = '';
+  document.getElementById('regSkill').value = '';
+  setTimeout(function() {
+    document.getElementById('regSuccess').style.display = 'none';
+  }, 5000);
+}
+</script>
+</body>
+</html>
